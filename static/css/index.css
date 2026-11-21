@@ -1,0 +1,47 @@
+:root { --ink: #1f1f1d; --ink-2: #52514e; --s-spar: #2a78d6; --s-corr: #eb6834; }
+
+body { font-family: 'Noto Sans', sans-serif; color: var(--ink); background: #fff; }
+.title, .button, .h5, .publication-authors { font-family: 'Google Sans', 'Noto Sans', sans-serif; }
+.publication-title { font-family: 'Castoro', serif; line-height: 1.15; }
+.publication-authors { color: var(--ink-2); margin-top: 0.4rem; }
+.publication-authors .author-block { display: inline-block; margin: 0 0.15rem; }
+.publication-links { margin-top: 1.2rem; display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
+.button.is-disabled { opacity: 0.55; pointer-events: none; }
+
+.section { padding: 2rem 1.5rem; }
+hr { max-width: 960px; margin: 0.5rem auto; background: #e6e5e1; height: 1px; }
+.teaser { border-radius: 8px; display: block; }
+.h5 { font-size: 1.15rem; font-weight: 500; margin-bottom: 0.4rem; }
+.caption { color: var(--ink-2); font-size: 0.9rem; margin-bottom: 0.8rem; }
+video { border-radius: 6px; display: block; }
+
+.swatch { display: inline-block; width: 0.75em; height: 0.75em; border-radius: 3px; margin: 0 0.3em 0 0.5em; vertical-align: -0.05em; }
+.swatch.s-spar { background: var(--s-spar); }
+.swatch.s-corr { background: var(--s-corr); }
+
+.results-table { margin: 0 auto; font-variant-numeric: tabular-nums; font-size: 0.95rem; }
+.results-table th, .results-table td { text-align: center !important; padding: 0.35rem 0.8rem !important; }
+.results-table td:first-child, .results-table th:first-child { text-align: left !important; }
+.results-table th.grp { border-bottom: 1px solid #ccc; font-weight: 500; }
+
+.pipeline { margin: 0 0 1rem; }
+.pipeline svg { width: 100%; height: auto; display: block; }
+.pipeline text { text-anchor: middle; font-family: 'Google Sans', sans-serif; font-size: 15px; font-weight: 500; fill: var(--ink); }
+.pipeline text.sm { font-size: 11.5px; font-weight: 400; fill: var(--ink-2); }
+.pipeline text.note { font-size: 11px; font-style: italic; fill: #8a8984; }
+.pipeline .node rect { stroke-width: 1.5; }
+.pipeline .in rect, .pipeline .pre rect { fill: #fff; stroke: #b8b7b2; }
+.pipeline .frozen rect { fill: #eef0f3; stroke: #8f98a8; stroke-dasharray: 5 3; }
+.pipeline .ours rect { fill: #e8f1fc; stroke: var(--s-spar); }
+.pipeline .corr rect { fill: #fdeee7; stroke: var(--s-corr); }
+.pipeline .out rect { fill: var(--ink); stroke: var(--ink); }
+.pipeline .out text { fill: #fff; }
+.pipeline .out text.sm { fill: #d8d7d2; }
+.pipeline .group { fill: none; stroke: #b8b7b2; stroke-dasharray: 2 4; stroke-width: 1.2; }
+.pipeline .edges path { fill: none; stroke: #6b6a66; stroke-width: 1.6; marker-end: url(#arr); }
+.pipeline .edges path.dash { stroke-dasharray: 4 3; }
+
+#BibTeX pre { background: #f7f7f5; border-radius: 8px; }
+.publication-authors .author-block { margin: 0 0.4rem; }
+.author-note { color: #8a8984; font-size: 0.85rem; }
+.refs { font-size: 0.9rem; color: #52514e; }

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="SPAR: Scene-grounded Pose And track Refinement for human mesh recovery.">
+  <title>SPAR: Scene-grounded Pose And track Refinement</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans:wght@400;600&family=Castoro&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop has-text-centered">
+      <h1 class="title is-1 publication-title">SPAR: Scene-grounded Pose<br>And track Refinement</h1>
+      <div class="is-size-5 publication-authors">
+        <span class="author-block">Ammaar Firozi<sup>*1</sup>,</span>
+        <span class="author-block">Graham Felton<sup>*2</sup>,</span>
+        <span class="author-block">Jianing Zhang<sup>*1</sup>,</span>
+        <span class="author-block">Shobhit Arora<sup>*1</sup></span>
+      </div>
+      <div class="is-size-6 publication-authors">
+        <span class="author-block"><sup>1</sup>Robotics Institute, Carnegie Mellon University</span>
+        <span class="author-block"><sup>2</sup>School of Architecture, Carnegie Mellon University</span>
+      </div>
+      <div class="is-size-6 publication-authors author-note"><sup>*</sup>Equal contribution</div>
+      <div class="publication-links">
+        <a class="button is-rounded is-dark is-disabled"><span class="icon"><i class="fas fa-file-pdf"></i></span><span>Report (soon)</span></a>
+        <a href="https://github.com/20af02/SPAR" class="button is-rounded is-dark"><span class="icon"><i class="fab fa-github"></i></span><span>Code</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section pt-0">
+  <div class="container is-max-desktop">
+    <video autoplay muted loop playsinline width="100%" class="teaser">
+      <source src="./static/videos/teaser_crop.mp4" type="video/mp4">
+    </video>
+    <p class="mt-4">
+      <b>Overview of SPAR.</b> Per-frame human mesh recovery methods such as PromptHMR place bodies well in the
+      image but often get depth and pose wrong under occlusion and close contact. SPAR refines PromptHMR's predictions
+      over time. Points on the PromptHMR mesh act as tracks that attend to scene tokens from a frozen VGGT-&Omega;
+      encoder and to learned shape tokens. On occluded frames, a corrector fine-tuned from ReLift adjusts the points.
+    </p>
+  </div>
+</section>
+
+<hr>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Approach</h2>
+    <figure class="pipeline">
+      <svg viewBox="0 0 960 350" role="img" aria-label="SPAR pipeline" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#6b6a66"/>
+          </marker>
+        </defs>
+        <rect class="group" x="140" y="218" width="380" height="124" rx="14"/>
+        <text x="330" y="334" class="note mid">scene + shape tokens (K, V), one-way mask</text>
+        <g class="node in"><rect x="10" y="130" width="110" height="64" rx="10"/><text x="65" y="158">Video</text><text x="65" y="176" class="sm">monocular</text></g>
+        <g class="node pre"><rect x="160" y="30" width="150" height="64" rx="10"/><text x="235" y="58">SAM 3.1</text><text x="235" y="76" class="sm">per-person masks</text></g>
+        <g class="node pre"><rect x="160" y="130" width="150" height="64" rx="10"/><text x="235" y="158">PromptHMR</text><text x="235" y="176" class="sm">mesh per frame</text></g>
+        <g class="node frozen"><rect x="160" y="230" width="150" height="80" rx="10"/><text x="235" y="258">VGGT-&#937;</text><text x="235" y="276" class="sm">frozen encoder</text><text x="235" y="291" class="sm">scene tokens</text></g>
+        <g class="node ours"><rect x="350" y="238" width="150" height="64" rx="10"/><text x="425" y="266">Shape encoder</text><text x="425" y="284" class="sm">64 tokens / frame</text></g>
+        <g class="node ours"><rect x="350" y="130" width="150" height="64" rx="10"/><text x="425" y="158">Point tracks</text><text x="425" y="176" class="sm">mesh points: pos, vel, acc</text></g>
+        <g class="node ours"><rect x="545" y="110" width="160" height="104" rx="12"/><text x="625" y="146">Point decoder</text><text x="625" y="166" class="sm">tracks (Q) attend to</text><text x="625" y="181" class="sm">scene + shape (K, V)</text><text x="625" y="196" class="sm">+ masks, 12-frame windows</text></g>
+        <g class="node corr"><rect x="545" y="250" width="160" height="64" rx="10"/><text x="625" y="278">Occlusion corrector</text><text x="625" y="296" class="sm">ReLift, occluded frames</text></g>
+        <g class="node out"><rect x="750" y="130" width="190" height="64" rx="10"/><text x="845" y="167">Refined 3D body</text></g>
+        <g class="edges">
+          <path d="M120,162 C140,162 140,62 160,62"/>
+          <path d="M120,162 L160,162"/>
+          <path d="M120,162 C140,162 140,270 160,270"/>
+          <path d="M235,94 L235,130"/>
+          <path d="M310,162 L350,162"/>
+          <path d="M310,62 C560,62 610,62 615,110"/>
+          <path d="M350,270 L310,270" class="dash"/>
+          <path d="M500,162 L545,162"/>
+          <path d="M520,240 C530,240 535,205 545,200"/>
+          <path d="M705,162 L750,162"/>
+          <path d="M625,214 L625,250"/>
+          <path d="M705,282 C735,282 765,235 800,194"/>
+        </g>
+      </svg>
+    </figure>
+    <p>
+      <b>Method.</b> SPAR takes PromptHMR's per-frame meshes and SAM 3.1 person masks as input. We sample points
+      on each mesh and follow them through time, and each point carries its position, velocity and acceleration. A
+      frozen VGGT-&Omega; encoder gives scene tokens for every frame. A shape encoder adds 64 tokens per frame inside
+      VGGT-&Omega; with a one-way attention mask, so the frozen features stay unchanged while the shape encoder still
+      gets gradients. A transformer decoder lets the point tracks attend to these tokens over 12-frame windows and
+      predicts refined 3D points. On occluded frames, a corrector fine-tuned from
+      <a href="https://github.com/ReLift3D/ReLift">ReLift</a> adjusts the points.
+    </p>
+  </div>
+</section>
+
+<hr>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Results</h2>
+
+    <p class="h5">Occlusion and close contact</p>
+    <p class="caption">Each video shows the predicted points on the image and in 3D next to ground truth (white).
+      <span class="swatch s-spar"></span>SPAR <span class="swatch s-corr"></span>corrector on occluded frames</p>
+    <div class="columns is-multiline">
+      <div class="column is-half"><video autoplay muted loop playsinline width="100%"><source src="./static/videos/crop_mma.mp4" type="video/mp4"></video></div>
+      <div class="column is-half"><video autoplay muted loop playsinline width="100%"><source src="./static/videos/crop_mma5.mp4" type="video/mp4"></video></div>
+      <div class="column is-half"><video autoplay muted loop playsinline width="100%"><source src="./static/videos/crop_grappling.mp4" type="video/mp4"></video></div>
+      <div class="column is-half"><video autoplay muted loop playsinline width="100%"><source src="./static/videos/crop_throw.mp4" type="video/mp4"></video></div>
+    </div>
+
+    <p class="h5 mt-5">Quantitative comparison</p>
+    <div class="table-container">
+      <table class="table is-narrow results-table">
+        <thead>
+          <tr><th></th><th colspan="3" class="grp">Test split, all frames (38 person-clips)</th><th colspan="4" class="grp">Harmony4D test sequences, occluded frames (19 person-clips)</th></tr>
+          <tr><th>Method</th><th>MPJPE</th><th>PA-MPJPE</th><th>PVE</th><th>Unaligned</th><th>MPJPE</th><th>PA-MPJPE</th><th>PVE</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>PromptHMR (image)</td><td>46.8</td><td>28.9</td><td>55.9</td><td>433.9</td><td>162.4</td><td>111.5</td><td>192.3</td></tr>
+          <tr><td>SPAR (final weights)</td><td>43.3</td><td>29.0</td><td>52.1</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>SPAR (val-selected)</td><td><b>39.9</b></td><td><b>28.2</b></td><td><b>48.7</b></td><td>433.3</td><td>158.1</td><td><b>110.5</b></td><td>187.0</td></tr>
+          <tr><td>SPAR (val-selected) + corrector</td><td>40.0</td><td><b>28.2</b></td><td>48.8</td><td><b>301.4</b></td><td><b>153.4</b></td><td>113.3</td><td><b>179.9</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">Errors in mm, lower is better. The val-selected checkpoint has the lowest validation error
+      (step 400 of 1000).</p>
+  </div>
+</section>
+
+<hr>
+
+<section class="section" id="references">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-4">References</h2>
+    <ol class="refs">
+      <li>Y. Wang, Y. Sun, P. Patel, K. Daniilidis, M. J. Black, M. Kocabas. <a href="https://arxiv.org/abs/2504.06397">PromptHMR: Promptable Human Mesh Recovery</a>. CVPR 2025.</li>
+      <li>J. Wang, M. Chen, S. Zhang, et al. <a href="https://arxiv.org/abs/2605.15195">VGGT-&Omega;</a>. arXiv 2605.15195, 2026.</li>
+      <li>N. Carion, L. Gustafson, Y.-T. Hu, et al. <a href="https://arxiv.org/abs/2511.16719">SAM 3: Segment Anything with Concepts</a>. arXiv 2511.16719, 2025.</li>
+      <li>A. Singer, M. Khriesh, N. Rotstein, Y. Kasten, O. Litany. <a href="https://arxiv.org/abs/2610.42136">ReLift: Dense 3D Tracking as Lifted Trajectory Repair</a>. arXiv 2610.42136, 2026.</li>
+      <li>R. Khirodkar, J.-T. Song, J. Cao, Z. Luo, K. Kitani. <a href="https://arxiv.org/abs/2410.20294">Harmony4D: A Video Dataset for In-The-Wild Close Human Interactions</a>. arXiv 2410.20294, 2024.</li>
+      <li>M. Kaufmann, J. Song, C. Guo, K. Shen, T. Jiang, C. Tang, J. J. Z&aacute;rate, O. Hilliges. <a href="https://eth-ait.github.io/emdb/">EMDB: The Electromagnetic Database of Global 3D Human Pose and Shape in the Wild</a>. ICCV 2023.</li>
+      <li>Y. Yin, C. Guo, M. Kaufmann, J. J. Z&aacute;rate, J. Song, O. Hilliges. <a href="https://yifeiyin04.github.io/Hi4D/">Hi4D: 4D Instance Segmentation of Close Human Interaction</a>. CVPR 2023.</li>
+    </ol>
+  </div>
+</section>
+
+<hr>
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-4">BibTeX</h2>
+    <pre><code>@misc{spar2026,
+  title  = {SPAR: Scene-grounded Pose And track Refinement},
+  author = {Firozi, Ammaar and Felton, Graham and Zhang, Jianing and Arora, Shobhit},
+  year   = {2026},
+  note   = {Course project, Carnegie Mellon University}
+}</code></pre>
+    <p><b>Acknowledgements.</b> SPAR builds on PromptHMR, VGGT-&Omega;, SAM 3.1 and ReLift, and is trained and
+      evaluated on Harmony4D, EMDB and Hi4D. The videos on this page show Harmony4D frames (MIT License, Copyright (c)
+      2024 Jyun-Ting Song). The page template is adapted from <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>
+      (<a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>).</p>
+  </div>
+</section>
+
+</body>
+</html>
